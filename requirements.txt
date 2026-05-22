@@ -1,0 +1,8 @@
+numpy>=1.24
+torch>=2.2
+matplotlib>=3.8
+pypdf>=4.2
+jupyter>=1.0
+
+# Install GNU Radio, PyQt5, libiio, and PlutoSDR drivers separately.
+# Those dependencies are platform-specific and are documented in INSTALL.md.

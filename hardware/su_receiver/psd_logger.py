@@ -2,6 +2,7 @@ import numpy as np
 import csv, os, time, random
 import torch
 from gnuradio import gr
+from pathlib import Path
 
 class blk(gr.sync_block):  # one-input, no-output
     def __init__(self):
@@ -13,8 +14,13 @@ class blk(gr.sync_block):  # one-input, no-output
 
         self.fft_size = 1024
 
+        repo_root = Path(__file__).resolve().parents[2]
+        output_dir = Path(os.environ.get("BTP_OUTPUT_DIR", repo_root / "data" / "runtime_captures"))
+        output_dir.mkdir(parents=True, exist_ok=True)
+        capture_prefix = os.environ.get("BTP_CAPTURE_PREFIX", "psd_log_temp")
+
         # CSV logging
-        self.csv_filename = r"C:\Users\Manish Anwla\Downloads\btpfiles\psd_log_temp.csv"
+        self.csv_filename = str(output_dir / f"{capture_prefix}.csv")
         if not os.path.exists(self.csv_filename):
             os.makedirs(os.path.dirname(self.csv_filename), exist_ok=True)
             with open(self.csv_filename, "w", newline="") as f:
@@ -22,20 +28,20 @@ class blk(gr.sync_block):  # one-input, no-output
                 writer.writerow(["Timestamp", "Mean_PSD_dB", "SNR_dB", "PU_Present"])
 
         # Primary PTH logging (original full metadata)
-        self.pth_filename = r"C:\Users\Manish Anwla\Downloads\btpfiles\psd_log_temp.pth"
+        self.pth_filename = str(output_dir / f"{capture_prefix}.pth")
         self.target_psd_len = 192   # change if you want different length (192 matched to MATLAB)
         self.save_every = 5
         self._write_counter = 0
 
         # Binned-by-SNR PTH (stores pairs (psd, label) per bin)
-        self.binned_pth_filename = r"C:\Users\Manish Anwla\Downloads\btpfiles\psd_binned_by_snr_temp.pth"
+        self.binned_pth_filename = str(output_dir / f"psd_binned_by_snr_{capture_prefix.replace('psd_log_', '')}.pth")
         self.snr_bin_width = 2.0
         self.snr_min_bin = 2
 
         # Initialize or load primary pth_data
         if os.path.exists(self.pth_filename):
             try:
-                loaded = torch.load(self.pth_filename, map_location='cpu')
+                loaded = torch.load(self.pth_filename, map_location='cpu', weights_only=False)
                 self.pth_data = loaded
                 for k in ('timestamps', 'snrs', 'psds', 'mean_psds', 'pu_flags', 'pu_labels'):
                     if k not in self.pth_data:
@@ -52,7 +58,7 @@ class blk(gr.sync_block):  # one-input, no-output
         # Initialize or load binned_data (pairs)
         if os.path.exists(self.binned_pth_filename):
             try:
-                loaded2 = torch.load(self.binned_pth_filename, map_location='cpu')
+                loaded2 = torch.load(self.binned_pth_filename, map_location='cpu', weights_only=False)
                 self.binned_data = loaded2
                 # ensure keys
                 if 'bins' not in self.binned_data:

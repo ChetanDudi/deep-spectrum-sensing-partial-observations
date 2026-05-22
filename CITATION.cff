@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: "Deep Learning-Based Spectrum Sensing under Partial Observations"
+message: "If you use this project or its artifacts, please cite it using the metadata below."
+type: software
+authors:
+  - family-names: "Dudi"
+    given-names: "Chetan Prakash"
+  - family-names: "Anwla"
+    given-names: "Manish"
+repository-code: "https://github.com/<your-username>/<your-repo>"
+license: "Proprietary"
+abstract: "B.Tech. project repository combining PlutoSDR/GNU Radio spectrum capture, PSD logging, and synthetic dataset generation for spectrum sensing under partial observations."
+keywords:
+  - cognitive radio
+  - spectrum sensing
+  - PlutoSDR
+  - GNU Radio
+  - deep learning
+version: "1.0.0"
+date-released: "2026-05-22"

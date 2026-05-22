@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+*.log
+*.png
+*.svg
+*.ipynb_checkpoints
+
+data/runtime_captures/
+data/generated_datasets/
+*.tmp

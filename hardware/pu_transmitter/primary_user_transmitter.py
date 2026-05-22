@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: Not titled yet
+# Title: Primary User Transmitter
 # Author: CHETAN DUDI
 # GNU Radio version: 3.10.12.0
 
@@ -19,6 +19,7 @@ from gnuradio.filter import firdes
 from gnuradio.fft import window
 import sys
 import signal
+import os
 from PyQt5 import Qt
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
@@ -26,15 +27,16 @@ from gnuradio import eng_notation
 from gnuradio import iio
 import sip
 import threading
+from pathlib import Path
 
 
 
-class PU_tx(gr.top_block, Qt.QWidget):
+class PrimaryUserTransmitter(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "Not titled yet", catch_exceptions=True)
+        gr.top_block.__init__(self, "Primary User Transmitter", catch_exceptions=True)
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("Not titled yet")
+        self.setWindowTitle("Primary User Transmitter")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -52,7 +54,7 @@ class PU_tx(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("gnuradio/flowgraphs", "PU_tx")
+        self.settings = Qt.QSettings("gnuradio/flowgraphs", "primary_user_transmitter")
 
         try:
             geometry = self.settings.value("geometry")
@@ -66,6 +68,11 @@ class PU_tx(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 1024000
+        self.symbol_file = symbol_file = os.environ.get(
+            "BTP_SYMBOL_FILE",
+            str(Path(__file__).resolve().parent / "input_bins" / "symbols_01.bin"),
+        )
+        self.pluto_uri = pluto_uri = os.environ.get("BTP_PLUTO_TX_URI", "ip:192.168.2.2")
 
         ##################################################
         # Blocks
@@ -113,7 +120,7 @@ class PU_tx(gr.top_block, Qt.QWidget):
 
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
-        self.iio_pluto_sink_0 = iio.fmcomms2_sink_fc32('ip:192.168.2.2' if 'ip:192.168.2.2' else iio.get_pluto_uri(), [True, True], 32768, True)
+        self.iio_pluto_sink_0 = iio.fmcomms2_sink_fc32(pluto_uri if pluto_uri else iio.get_pluto_uri(), [True, True], 32768, True)
         self.iio_pluto_sink_0.set_len_tag_key('')
         self.iio_pluto_sink_0.set_bandwidth(20000000)
         self.iio_pluto_sink_0.set_frequency(2400000000)
@@ -130,7 +137,7 @@ class PU_tx(gr.top_block, Qt.QWidget):
             verbose=False,
             log=False,
             truncate=False)
-        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_char*1, 'C:\\Users\\CHETAN DUDI\\OneDrive\\Desktop\\SDR_Project\\transmitter\\input_bins\\symbols_01.bin', True, 0, 0)
+        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_char*1, symbol_file, True, 0, 0)
         self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
 
 
@@ -143,7 +150,7 @@ class PU_tx(gr.top_block, Qt.QWidget):
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("gnuradio/flowgraphs", "PU_tx")
+        self.settings = Qt.QSettings("gnuradio/flowgraphs", "primary_user_transmitter")
         self.settings.setValue("geometry", self.saveGeometry())
         self.stop()
         self.wait()
@@ -161,7 +168,7 @@ class PU_tx(gr.top_block, Qt.QWidget):
 
 
 
-def main(top_block_cls=PU_tx, options=None):
+def main(top_block_cls=PrimaryUserTransmitter, options=None):
 
     qapp = Qt.QApplication(sys.argv)
 

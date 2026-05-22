@@ -4,6 +4,7 @@ import random
 import datetime
 import shutil
 from copy import deepcopy
+from pathlib import Path
 
 
 import torch
@@ -18,7 +19,9 @@ import numpy as np
 # ---------------------------
 # 2) Configuration (edit these if needed)
 # ---------------------------
-DRIVE_BASE = '/home/anjani/btp/sdr_data'
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DRIVE_BASE = os.environ.get('BTP_DATA_DIR', str(PROJECT_ROOT / 'data' / 'sample_results'))
+GENERATED_BASE = os.environ.get('BTP_GENERATED_DATA_DIR', str(PROJECT_ROOT / 'data' / 'generated_datasets'))
 MOD_FILES = {
     '16QAM': os.path.join(DRIVE_BASE, 'psd_log_16QAM.pth'),
     '8PSK' : os.path.join(DRIVE_BASE, 'psd_log_8PSK.pth'),
@@ -29,7 +32,7 @@ MOD_FILES = {
 
 # Output folder
 TIME_TAG = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
-OUT_DIR = os.path.join(DRIVE_BASE, 'GeneratedDatasets_realistic', TIME_TAG)
+OUT_DIR = os.path.join(GENERATED_BASE, TIME_TAG)
 os.makedirs(OUT_DIR, exist_ok=True)
 print('Output will be saved to:', OUT_DIR)
 
